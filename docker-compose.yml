@@ -1,0 +1,99 @@
+name: trafficos
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: trafficos
+      POSTGRES_PASSWORD: trafficos
+      POSTGRES_DB: trafficos
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trafficos"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  nats:
+    image: nats:2.11-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    ports: ["127.0.0.1:4222:4222", "127.0.0.1:8222:8222"]
+    volumes: ["nats-data:/data"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8222/healthz"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    environment:
+      DATABASE_URL: postgres://trafficos:trafficos@postgres:5432/trafficos?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      NATS_URL: nats://nats:4222
+      STORAGE_MODE: postgres
+      API_ADDR: :8080
+      SIMULATOR_TOKEN: ${SIMULATOR_TOKEN:-local-simulator-change-me}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      nats: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  simulator:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    entrypoint: ["/app/simulator"]
+    environment:
+      API_URL: http://api:8080
+      SIMULATOR_TOKEN: ${SIMULATOR_TOKEN:-local-simulator-change-me}
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes: ["./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro", "prometheus-data:/prometheus"]
+    ports: ["127.0.0.1:9090:9090"]
+    depends_on: [api]
+  grafana:
+    image: grafana/grafana:12.1.1
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-trafficos-local}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:3001:3000"]
+    depends_on: [prometheus]
+volumes:
+  postgres-data:
+  nats-data:
+  prometheus-data:
+  grafana-data:

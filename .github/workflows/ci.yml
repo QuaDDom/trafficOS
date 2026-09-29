@@ -1,0 +1,18 @@
+name: TrafficOS verification
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.27.1' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '24', cache: npm }
+      - run: npm ci
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: npm test && npm run build
+      - run: docker compose up -d --wait postgres redis nats
+      - run: go test -tags=integration -v ./apps/api/internal/transport
+      - run: docker compose build

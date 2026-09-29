@@ -1,0 +1,22 @@
+'use client';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
+import { Html, Line } from '@react-three/drei';
+import * as THREE from 'three';
+import type { Intersection, StreetMap } from '@/lib/types';
+export function LargeSignals({map,intersections,selected,labels,onSelect}:{map:StreetMap;intersections:Intersection[];selected:string;labels:boolean;onSelect:(id:string)=>void}){
+ const posts=useRef<THREE.InstancedMesh>(null),lights=useRef<THREE.InstancedMesh>(null),picks=useRef<THREE.InstancedMesh>(null);
+ const [nearby,setNearby]=useState<string[]>([]);const last=useRef(0),signature=useRef('');
+ const slots=useMemo(()=>map.nodes.flatMap(n=>[{x:-5.8,z:-5.8,ns:true,angle:Math.PI},{x:5.8,z:5.8,ns:true,angle:0},{x:-5.8,z:5.8,ns:false,angle:-Math.PI/2},{x:5.8,z:-5.8,ns:false,angle:Math.PI/2}].filter((_,index)=>map.roads.some(r=>{if(r.from!==n.id&&r.to!==n.id)return false;const end=r.from===n.id?r.b:r.a;return index===0?end.z<n.z:index===1?end.z>n.z:index===2?end.x<n.x:end.x>n.x;})).map(s=>({...s,x:n.x+s.x,z:n.z+s.z,id:n.id}))),[map.id]);
+ useLayoutEffect(()=>{
+  const object=new THREE.Object3D(),color=new THREE.Color();
+  slots.forEach((s,index)=>{for(let k=0;k<2;k++){object.position.set(s.x,k?4.6:2.2,s.z);object.rotation.set(0,s.angle,0);object.scale.set(k?.66:.16,k?1.65:4.4,k?.36:.16);object.updateMatrix();posts.current!.setMatrixAt(index*2+k,object.matrix);posts.current!.setColorAt(index*2+k,color.set(k?'#30372d':'#465448'));}for(let k=0;k<3;k++){object.position.set(s.x+Math.sin(s.angle)*.2,5.13-k*.52,s.z+Math.cos(s.angle)*.2);object.rotation.set(0,s.angle,0);object.scale.set(1,1,1);object.updateMatrix();lights.current!.setMatrixAt(index*3+k,object.matrix);}});
+  map.nodes.forEach((n,index)=>{object.position.set(n.x,.23,n.z);object.rotation.set(-Math.PI/2,0,0);object.scale.set(1,1,1);object.updateMatrix();picks.current!.setMatrixAt(index,object.matrix);});
+  for(const mesh of [posts.current,lights.current,picks.current])if(mesh){mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();}
+ },[slots,map.id]);
+ useLayoutEffect(()=>{const byId=new Map(intersections.map(i=>[i.id,i])),color=new THREE.Color();slots.forEach((s,index)=>{const phase=byId.get(s.id)?.phase??'ALL_RED_NS_TO_EW',axis=phase.startsWith(s.ns?'NS_':'EW_'),active=axis&&phase.endsWith('GREEN')?2:axis&&phase.endsWith('YELLOW')?1:0;for(let k=0;k<3;k++)lights.current!.setColorAt(index*3+k,color.set(k===active?['#ed573b','#f1c258','#a8d47b'][k]:'#263029'));});if(lights.current?.instanceColor)lights.current.instanceColor.needsUpdate=true;},[intersections,slots]);
+ useFrame(({camera,clock})=>{if(!labels||clock.elapsedTime-last.current<.3)return;last.current=clock.elapsedTime;const ids=map.nodes.filter(n=>Math.hypot(camera.position.x-n.x,camera.position.y,camera.position.z-n.z)<230).sort((a,b)=>Math.hypot(camera.position.x-a.x,camera.position.z-a.z)-Math.hypot(camera.position.x-b.x,camera.position.z-b.z)).slice(0,16).map(n=>n.id);const next=ids.join(',');if(next!==signature.current){signature.current=next;setNearby(ids);}});
+ const pick=(e:ThreeEvent<MouseEvent>)=>{if(e.instanceId!==undefined){e.stopPropagation();onSelect(map.nodes[e.instanceId].id);}};
+ const selection=map.nodes.find(n=>n.id===selected);
+ return <group><instancedMesh ref={posts} args={[undefined,undefined,slots.length*2]} castShadow><boxGeometry args={[1,1,1]}/><meshStandardMaterial roughness={.9}/></instancedMesh><instancedMesh ref={lights} args={[undefined,undefined,slots.length*3]}><circleGeometry args={[.19,8]}/><meshBasicMaterial side={THREE.DoubleSide}/></instancedMesh><instancedMesh ref={picks} args={[undefined,undefined,map.nodes.length]} onClick={pick}><planeGeometry args={[12,12]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></instancedMesh>{labels&&selection&&<Line points={[[selection.x-6,.24,selection.z-6],[selection.x+6,.24,selection.z-6],[selection.x+6,.24,selection.z+6],[selection.x-6,.24,selection.z+6],[selection.x-6,.24,selection.z-6]]} color="#ec6a36" lineWidth={2}/>} {labels&&map.nodes.filter(n=>n.id===selected||nearby.includes(n.id)).map(n=><Html key={n.id} position={[n.x,.5,n.z-10]} center zIndexRange={[8,0]}><button className={`intersection-marker ${n.id===selected?'selected':''}`} onClick={()=>onSelect(n.id)} aria-label={`Select ${n.id}`}>{n.id.replace('INT-','')}</button></Html>)}</group>;
+}

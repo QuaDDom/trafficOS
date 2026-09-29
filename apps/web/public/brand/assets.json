@@ -1,0 +1,79 @@
+[
+  {
+    "name": "logo-dark",
+    "svg": "logo-dark.svg",
+    "png": "logo-dark.png",
+    "width": 1888,
+    "height": 320
+  },
+  {
+    "name": "logo-light",
+    "svg": "logo-light.svg",
+    "png": "logo-light.png",
+    "width": 1888,
+    "height": 320
+  },
+  {
+    "name": "logo-black",
+    "svg": "logo-black.svg",
+    "png": "logo-black.png",
+    "width": 1888,
+    "height": 320
+  },
+  {
+    "name": "logo-white",
+    "svg": "logo-white.svg",
+    "png": "logo-white.png",
+    "width": 1888,
+    "height": 320
+  },
+  {
+    "name": "wordmark-dark",
+    "svg": "wordmark-dark.svg",
+    "png": "wordmark-dark.png",
+    "width": 1480,
+    "height": 224
+  },
+  {
+    "name": "wordmark-light",
+    "svg": "wordmark-light.svg",
+    "png": "wordmark-light.png",
+    "width": 1480,
+    "height": 224
+  },
+  {
+    "name": "symbol",
+    "svg": "symbol.svg",
+    "png": "symbol.png",
+    "width": 1024,
+    "height": 1024
+  },
+  {
+    "name": "symbol-dark",
+    "svg": "symbol-dark.svg",
+    "png": "symbol-dark.png",
+    "width": 1024,
+    "height": 1024
+  },
+  {
+    "name": "symbol-white",
+    "svg": "symbol-white.svg",
+    "png": "symbol-white.png",
+    "width": 1024,
+    "height": 1024
+  },
+  {
+    "name": "logo-stacked",
+    "svg": "logo-stacked.svg",
+    "png": "logo-stacked.png",
+    "width": 1600,
+    "height": 880
+  },
+  {
+    "name": "social-cover",
+    "svg": "social-cover.svg",
+    "png": "social-cover.png",
+    "width": 1200,
+    "height": 630
+  }
+]

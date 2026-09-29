@@ -1,0 +1,9 @@
+/* TrafficOS identity. Original artwork is generated from scripts/build-brand.mjs. */
+:root{--brand-asphalt:#1a1d18;--brand-signal:#f17846;--brand-chalk:#e8e5d6;--brand-sage:#b8c69a;--brand-concrete:#858b79}
+.brand-logo,.brand-symbol{display:block;object-fit:contain;flex-shrink:0}
+.topbar .brand{gap:12px}.topbar .brand>.brand-logo{width:190px;height:auto}.topbar .brand .version-label{align-self:center;margin:0}
+.topbar-right>a.brand-kit-link{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid #515b43;flex-shrink:0}.brand-kit-link .brand-symbol{width:30px;height:30px}.topbar-right>a.brand-kit-link:hover{border-color:var(--brand-signal);background:#303726}.brand-kit-link:focus-visible{outline:2px solid var(--brand-signal);outline-offset:4px}
+.intro-card h2{width:min(540px,72vw);margin:25px 0 32px}.intro-card h2>.brand-logo{width:100%;height:auto}.intro-card .intro-eyebrow{letter-spacing:1.1px}.help-brand-logo{width:min(300px,100%);height:auto;margin:8px 0 25px}.brand-resources-link{display:flex;align-items:center;gap:8px;width:fit-content;margin:20px 0;color:var(--brand-signal);font:11px var(--font-mono)}.brand-resources-link:hover{text-decoration:underline;text-underline-offset:4px}
+.guide-top .guide-brand>.brand-logo{width:190px;height:auto}.steering-wheel>.brand-symbol{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34px;height:34px;z-index:2}
+@media(max-width:1050px){.topbar .brand>.brand-logo{width:170px}.topbar-right{gap:17px}}
+@media(max-width:700px){.topbar .brand>.brand-logo{width:142px}.topbar-right{gap:12px}.topbar-right>a.brand-kit-link{width:27px;height:27px}.brand-kit-link .brand-symbol{width:25px;height:25px}.guide-top .guide-brand>.brand-logo{width:142px}.intro-card h2{width:82vw;max-width:420px}.steering-wheel>.brand-symbol{width:26px;height:26px}}

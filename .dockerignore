@@ -1,0 +1,9 @@
+.git
+.tools
+.runtime
+node_modules
+**/node_modules
+**/.next
+.env
+docs/screenshots
+**/*.tsbuildinfo

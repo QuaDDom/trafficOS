@@ -1,0 +1,22 @@
+goos: windows
+goarch: amd64
+pkg: trafficos/apps/api/internal/optimization
+cpu: AMD Ryzen 5 5500X3D 6-Core Processor           
+BenchmarkDecide-12    	28335702	        52.83 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	trafficos/apps/api/internal/optimization	1.990s
+goos: windows
+goarch: amd64
+pkg: trafficos/apps/api/internal/simulation
+cpu: AMD Ryzen 5 5500X3D 6-Core Processor           
+BenchmarkWorldTick-12         	   19548	     63981 ns/op	    5755 B/op	     263 allocs/op
+BenchmarkComparison180s-12    	       8	 143146850 ns/op	 9226713 B/op	  493927 allocs/op
+PASS
+ok  	trafficos/apps/api/internal/simulation	2.779s
+goos: windows
+goarch: amd64
+pkg: trafficos/apps/api/internal/events
+cpu: AMD Ryzen 5 5500X3D 6-Core Processor           
+BenchmarkEventEncode-12    	  459130	      2442 ns/op	  94.99 MB/s	     480 B/op	       5 allocs/op
+PASS
+ok  	trafficos/apps/api/internal/events	1.388s

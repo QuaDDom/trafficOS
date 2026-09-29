@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.env
+.tools/
+.runtime/
+*.exe
+*.test
+coverage*
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Local configuration variants; keep the distributable example.
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
